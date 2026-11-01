@@ -2,13 +2,9 @@ name: TimeTree Sync
 
 on:
   workflow_dispatch:
-
-  # Public配布用では定期実行を無効化しています。
-  # 利用する場合は、下記3行の「#」を削除してください。
-  #
-  # schedule:
-  #   - cron: "15 */6 * * *"
-
+  schedule:
+    - cron: "15 */3 * * *"
+      timezone: "Asia/Tokyo"
 jobs:
   sync:
     runs-on: ubuntu-latest
