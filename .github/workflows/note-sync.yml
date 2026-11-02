@@ -1,0 +1,47 @@
+name: Note RSS to Notion
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: Write to Notion (otherwise read-only dry-run)
+        type: boolean
+        default: false
+  schedule:
+    # Sunday 19:00 JST (GitHub may delay scheduled runs).
+    - cron: "0 10 * * 0"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: note-notion-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Unit tests
+        run: python -m unittest test_note_sync -v
+      - name: Read or synchronize
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_HIKES_DATA_SOURCE_ID: ${{ secrets.NOTION_HIKES_DATA_SOURCE_ID }}
+          NOTION_SYNC_LOG_PAGE_ID: ${{ secrets.NOTION_SYNC_LOG_PAGE_ID }}
+          NOTION_NOTE_ROUTES_JSON: ${{ secrets.NOTION_NOTE_ROUTES_JSON }}
+          APPLY: ${{ github.event_name == 'schedule' || inputs.apply }}
+        shell: bash
+        run: |
+          if [ "$APPLY" = "true" ]; then
+            python note_sync.py --apply
+          else
+            python note_sync.py
+          fi
