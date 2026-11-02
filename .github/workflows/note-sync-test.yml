@@ -1,0 +1,28 @@
+name: Note sync validation
+
+on:
+  push:
+    paths: ["note_sync.py", "test_note_sync.py", ".github/workflows/note-sync*.yml"]
+  pull_request:
+    paths: ["note_sync.py", "test_note_sync.py", ".github/workflows/note-sync*.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile
+        run: python -m py_compile note_sync.py test_note_sync.py
+      - name: Unit tests
+        run: python -m unittest discover -s . -p "test_note_sync.py" -v
+      - name: Real RSS smoke test (no Notion credentials)
+        run: python note_sync.py --rss-only
