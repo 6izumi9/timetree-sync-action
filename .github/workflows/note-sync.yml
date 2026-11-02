@@ -30,7 +30,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Unit tests
-        run: python -m unittest discover -s . -p "test_note_sync.py" -v
+        run: python -m unittest test_note_sync -v
       - name: Read or synchronize
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
