@@ -23,6 +23,6 @@ jobs:
       - name: Compile
         run: python -m py_compile note_sync.py test_note_sync.py
       - name: Unit tests
-        run: python -m unittest discover -s . -p "test_note_sync.py" -v
+        run: python -m unittest test_note_sync -v
       - name: Real RSS smoke test (no Notion credentials)
         run: python note_sync.py --rss-only
